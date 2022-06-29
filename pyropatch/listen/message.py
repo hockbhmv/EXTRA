@@ -54,14 +54,14 @@ class Client():
         listener['future'].set_exception(ListenerCanceled())
         self.remove_message_listener(chat_id, listener['future'])
          
-   @patchable
-   async def iter_messages(
+    @patchable
+    async def iter_messages(
         self,
         chat_id: Union[int, str],
         limit: int,
         offset: int = 0,
         skip_duplicate_files: bool = False,
-   ) -> Optional[AsyncGenerator["types.Message", None]]:
+    ) -> Optional[AsyncGenerator["types.Message", None]]:
         
         MESSAGES = []
         current = offset
@@ -96,7 +96,7 @@ class Client():
        api_id, 
        api_hash, 
        bot_token=bot_token
-      )
+     )
     
    try: 
       await bot.start()
