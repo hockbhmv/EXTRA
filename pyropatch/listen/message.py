@@ -82,30 +82,15 @@ class Client():
                 current += 1
        
     @patchable
-    async def start_clone_bot(
-        self,
-        api_id: int,
-        api_hash: str,
-        bot_token: str,
-        session_name: str = ":memory:",
-        stop_client: bool = None
-    ):
-    
-    bot = Client(
-       session_name, 
-       api_id, 
-       api_hash, 
-       bot_token=bot_token
-    )
-    
-    try: 
-      await bot.start()
-    except Exception:
-      raise Exception("The given bot token is expired or invalid. please change it !")
-    bot.details = await bot.get_me()
-    if stop_client:
-      await bot.stop()  
-    return bot 
+    async def start_clone_bot(self, bot, stop=False)
+       try: 
+          await bot.start()
+       except Exception:
+          raise Exception("The given bot token is expired or invalid. please change it !")
+       bot.details = await bot.get_me()
+       if stop:
+         await bot.stop()  
+       return bot 
 
 @patch(pyrogram.types.messages_and_media.message.Message)
 class Message():
