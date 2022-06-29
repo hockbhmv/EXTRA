@@ -82,7 +82,7 @@ class Client():
                 current += 1
        
     @patchable
-    async def start_clone_bot(self, bot, stop=False)
+    async def start_clone_bot(self, bot, stop=False):
        try: 
           await bot.start()
        except Exception:
