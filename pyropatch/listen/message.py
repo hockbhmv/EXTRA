@@ -1,8 +1,9 @@
 # this code snippet is created using
 # https://github.com/usernein/pyromod/blob/master/pyromod/listen/listen.py
 
+from typing import Union, Optional, AsyncGenerator
 from ..utils import patch, patchable
-import pyrogram
+import pyrogram, re
 import asyncio
 import functools
 
@@ -52,8 +53,67 @@ class Client():
             return
         listener['future'].set_exception(ListenerCanceled())
         self.remove_message_listener(chat_id, listener['future'])
+         
+    @patchable
+    async def iter_messages(
+        self,
+        chat_id: Union[int, str],
+        limit: int,
+        offset: int = 0,
+        skip_duplicate_files: bool = False,
+    ) -> Optional[AsyncGenerator["types.Message", None]]:
+        
+        MESSAGES = []
+        current = offset
+        while True:
+            new_diff = min(200, limit - current)
+            if new_diff <= 0:
+                return 
+            messages = await self.get_messages(chat_id, list(range(current, current+new_diff+1)))
+            for message in messages:
+                if skip_duplicate_files:
+                    if isinstance(message.media, "document"):
+                       file_id = message.document.file_id
+                       if file_id in MESSAGES:
+                          message = "DUPLICATE"
+                       else:
+                          MESSAGES.append(file_id)
+                yield message
+                current += 1
+       
+     @patchable
+     async def start_clone_bot(
+        self,
+        api_id: int,
+        api_hash: str,
+        bot_token: str,
+        session_name: str = ":memory:",
+        stop_client: bool = None
+    ):
+    
+    bot = Client(
+       session_name, 
+       api_id, 
+       api_hash, 
+       bot_token=bot_token
+       )
+    
+    try: 
+       await bot.start()
+    except Exception:
+       raise Exception("The given bot token is expired or invalid. please change it !")
+    bot.details = await bot.get_me()
+    if stop_client:
+       await bot.stop()  
+    return bot 
 
-
+@patch(pyrogram.types.messages_and_media.message.Message)
+class Message():
+    @patchable
+    def get_bot_token(self) -> str:
+        bot_token = re.findall(r'\d[0-9]{8,10}:[0-9A-Za-z_-]{35}', self.text, re.IGNORECASE)
+        return bot_token[0] if bot_token else None
+    
 @patch(pyrogram.handlers.message_handler.MessageHandler)
 class MessageHandler():
     @patchable
