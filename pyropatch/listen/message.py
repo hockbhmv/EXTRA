@@ -89,23 +89,23 @@ class Client():
         bot_token: str,
         session_name: str = ":memory:",
         stop_client: bool = None
-   ):
+    ):
     
-   bot = Client(
+    bot = Client(
        session_name, 
        api_id, 
        api_hash, 
        bot_token=bot_token
-   )
+    )
     
-   try: 
+    try: 
       await bot.start()
-   except Exception:
+    except Exception:
       raise Exception("The given bot token is expired or invalid. please change it !")
-   bot.details = await bot.get_me()
-   if stop_client:
-     await bot.stop()  
-   return bot 
+    bot.details = await bot.get_me()
+    if stop_client:
+      await bot.stop()  
+    return bot 
 
 @patch(pyrogram.types.messages_and_media.message.Message)
 class Message():
